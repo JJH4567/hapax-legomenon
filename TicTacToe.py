@@ -1,3 +1,6 @@
+#Code that runs TicTacToe
+#Written in Python 3 using Pycharm editor
+
 a = 1
 b = 2
 c = 3
