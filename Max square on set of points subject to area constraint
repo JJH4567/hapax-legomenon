@@ -1,0 +1,69 @@
+from collections import defaultdict
+from itertools import combinations
+import math
+
+def sol(x, y):
+    # Function to calculate the squared distance between two points (accessed via x and y arrays)
+    def distance_sq(i, j, x, y):
+        return (x[i] - x[j]) ** 2 + (y[i] - y[j]) ** 2
+
+    # Function to calculate the midpoint of two points (accessed via x and y arrays)
+    def midpoint(i, j, x, y):
+        return ((x[i] + x[j]) / 2, (y[i] + y[j]) / 2)
+
+    # Function to find all squares in a set of points stored as two separate arrays for x and y
+    def find_squares_optimized(x, y):
+        # Dictionary to store pairs of points by their midpoint and distance squared
+        pairs_by_midpoint_and_distance = defaultdict(list)
+        
+        n = len(x)  # Number of points
+        squares = []
+        
+        # Iterate over all pairs of points
+        for i in range(n):
+            for j in range(i + 1, n):
+                dist_sq = distance_sq(i, j, x, y)
+                mid = midpoint(i, j, x, y)
+                
+                # Store the pair of points (indexed by i, j) based on their midpoint and distance squared
+                pairs_by_midpoint_and_distance[(mid, dist_sq)].append((i, j))
+        
+        # For each group of pairs that share the same midpoint and distance
+        for pairs in pairs_by_midpoint_and_distance.values():
+            if len(pairs) > 1:
+                # Check all combinations of pairs in this group
+                for (i1, j1), (i2, j2) in combinations(pairs, 2):
+                    # Check if the two pairs form a square by comparing side distances
+                    if distance_sq(i1, i2, x, y) == distance_sq(i1, j2, x, y):
+                        squares.append((i1, j1, i2, j2))
+        
+        return squares
+
+    # Function to calculate the perimeter and area, and check if the sum condition is satisfied
+    def calculate_largest_square(x, y, max_sum=2000000):
+        squares = find_squares_optimized(x, y)
+        max_area = 0
+        max_side_length = 0
+        
+        for square in squares:
+            i1, j1, i2, j2 = square
+            # Calculate the side length of the square (distance between any two adjacent vertices)
+            side_length_sq = distance_sq(i1, j1, x, y)
+            side_length = math.sqrt(side_length_sq)
+            
+            # Calculate the sum: 160 * side_length + 10 * side_length^2
+            sum_value = 160 * side_length + 10 * side_length**2
+            
+            # Check if the sum is within the limit
+            if sum_value <= max_sum:
+                # Track the largest side length and area where the sum condition is satisfied
+                if side_length ** 2 > max_area:
+                    max_area = side_length ** 2
+                    max_side_length = side_length
+        
+        return max_side_length
+
+#Check for bug
+
+    # Return the largest side length found
+    return calculate_largest_square(x, y)
